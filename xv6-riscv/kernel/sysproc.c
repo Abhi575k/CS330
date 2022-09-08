@@ -113,7 +113,23 @@ sys_yield(void)
 }
 
 uint64
-sys_getpa(uint64 *A)
+sys_getpa(void)
 {
-  return walkaddr(myproc()->pagetable, *A) + (*A & (PGSIZE - 1));
+  uint64 A;
+  if(argaddr(0, &A) < 0)
+    return -1;
+  printf("%d\n",A);
+  return walkaddr(myproc()->pagetable, A) + (A & (PGSIZE - 1));
+}
+
+uint64
+sys_waitpid(void)
+{
+  int pid_inp;
+  uint64 p;
+  if(argaddr(1, &p) < 0)
+    return -1;
+  if(argint(0, &pid_inp) < 0)
+    return -1;
+  return waitpid(pid_inp,p);
 }

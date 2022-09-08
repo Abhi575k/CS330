@@ -39,3 +39,4 @@ entry("sleep");
 entry("uptime");
 entry("yield");
 entry("getpa");
+entry("waitpid");
