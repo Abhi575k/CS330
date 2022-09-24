@@ -745,3 +745,31 @@ waitpid(int pid_inp,uint64 addr)
     }
   }
 }
+
+int 
+cps(){
+   // struct proc *p;
+    struct proc *np;
+    //sti();
+    for (np = proc ; np<&proc[NPROC];np++)
+    {
+
+    acquire(&np->lock);
+      if(np->state == SLEEPING) {
+        printf("%s \t %d \t SLEEPING  \n", np->name,np->pid);
+      }
+
+      else if(np->state == RUNNING) {
+        printf("%s \t %d \t RUNNING  \n", np->name,np->pid);
+      }
+
+      else if(np->state == RUNNABLE) {
+        printf("%s \t %d \t RUNNABLE \n", np->name,np->pid);
+      }
+     
+    release(&np->lock);
+      
+    }
+    return 26;
+    
+}

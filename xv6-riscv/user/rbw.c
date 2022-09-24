@@ -23,12 +23,12 @@
 // }
 
 //      getpa()
-int main(){
-    uint64 *p=(uint64*)malloc(sizeof(uint64));
-    printf("Virtual Addr: %x\n",p);
-    printf("Physical Addr: %x\n",getpa(p));
-    exit(0);
-}
+// int main(){
+//     uint64 *p=(uint64*)malloc(sizeof(uint64));
+//     printf("Virtual Addr: %x\n",p);
+//     printf("Physical Addr: %x\n",getpa(p));
+//     exit(0);
+// }
 
 // int main(){
 //     int f0=fork();
@@ -48,3 +48,8 @@ int main(){
 //     }
 //     exit(0);
 // }
+
+int main(){
+    cps();
+    exit(0);
+}
