@@ -133,3 +133,9 @@ sys_waitpid(void)
     return -1;
   return waitpid(pid_inp,p);
 }
+
+uint64
+sys_cps(void)
+{
+  return cps();
+}
