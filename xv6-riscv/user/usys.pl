@@ -41,3 +41,4 @@ entry("yield");
 entry("getpa");
 entry("waitpid");
 entry("cps");
+entry("forkf");

@@ -28,6 +28,7 @@ int yield(void);
 int getpa(uint64*);
 int waitpid(int,int*);
 int cps(void);
+int forkf(int);
 
 // ulib.c
 int stat(const char*, struct stat*);
