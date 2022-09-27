@@ -139,3 +139,9 @@ sys_cps(void)
 {
   return cps();
 }
+
+uint64
+sys_forkf(int (*fun)(void))
+{
+  return forkf(&fun);
+}
