@@ -520,8 +520,9 @@ forkret(void)
     first = 0;
     fsinit(ROOTDEV);
   }
-
+  // printf("AAAAAAAAAAAAAAA\n");
   usertrapret();
+
 }
 
 // Atomically release lock and sleep on chan.
@@ -786,7 +787,6 @@ forkf(int (*fun)(void))
   if((np = allocproc()) == 0){
     return -1;
   }
-
   // Copy user memory from parent to child.
   if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
     freeproc(np);
@@ -816,11 +816,8 @@ forkf(int (*fun)(void))
   acquire(&wait_lock);
   np->parent = p;
   release(&wait_lock);
-
   acquire(&np->lock);
-  fun();
   np->state = RUNNABLE;
   release(&np->lock);
-
   return pid;
 }

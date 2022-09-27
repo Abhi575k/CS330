@@ -106,7 +106,7 @@ int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
 int             waitpid(int,uint64);
 int             cps(void);
-int             forkf(int);
+int             forkf(int(*)(void));
 
 // swtch.S
 void            swtch(struct context*, struct context*);
