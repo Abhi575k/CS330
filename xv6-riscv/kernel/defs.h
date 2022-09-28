@@ -8,6 +8,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct procstat;
 
 // bio.c
 void            binit(void);
@@ -107,6 +108,7 @@ void            procdump(void);
 int             waitpid(int,uint64);
 int             cps(void);
 int             forkf(int(*)(void));
+int             pinfo(int,struct procstat*);
 
 // swtch.S
 void            swtch(struct context*, struct context*);

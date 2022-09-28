@@ -27,3 +27,4 @@
 #define SYS_waitpid 25
 #define SYS_cps  26
 #define SYS_forkf 27
+#define SYS_pinfo 28

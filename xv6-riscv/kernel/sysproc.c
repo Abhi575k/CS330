@@ -150,3 +150,16 @@ sys_forkf(void)
   int x=forkf(fun);
   return x;
 }
+
+uint64
+sys_pinfo(void)
+{
+  int pid;
+  uint64 addr;
+  if(argint(0, &pid) < 0)
+    return -1;
+  if(argaddr(1, &addr) < 0)
+    return -1;
+  struct procstat *p = (struct procstat*)addr;
+  return pinfo(pid,p);
+}

@@ -1,7 +1,8 @@
-#include "kernel/types.h"
-#include "kernel/stat.h"
-#include "user/user.h"
-#include <stddef.h>
+// #include "kernel/types.h"
+// #include "kernel/stat.h"
+// #include "user/user.h"
+// #include "kernel/procstat.h"
+// #include <stddef.h>
 
 
 // int main(){
@@ -54,23 +55,49 @@
 //     exit(0);
 // }
 
-int g (int x)
-{
-   return x*x;
-}
+// int g (int x)
+// {
+//    return x*x;
+// }
 
-int f (void)
-{
-   int x = 10;
+// int f (void)
+// {
+//    int x = 10;
 
-   fprintf(2, "Hello world! %d\n", g(x));
-   return 0;
-}
+//    fprintf(2, "Hello world! %d\n", g(x));
+//    return 0;
+// }
+
+// int
+// main(void)
+// {
+//   int x = forkf(f);
+//   if (x < 0) {
+//      fprintf(2, "Error: cannot fork\nAborting...\n");
+//      exit(0);
+//   }
+//   else if (x > 0) {
+//      sleep(1);
+//      fprintf(1, "%d: Parent.\n", getpid());
+//      wait(0);
+//   }
+//   else {
+//      fprintf(1, "%d: Child.\n", getpid());
+//   }
+
+//   exit(0);
+// }
+
+#include "kernel/types.h"
+#include "kernel/procstat.h"
+#include "user/user.h"
 
 int
 main(void)
 {
-  int x = forkf(f);
+  struct procstat pstat;
+
+  int x = fork();
   if (x < 0) {
      fprintf(2, "Error: cannot fork\nAborting...\n");
      exit(0);
@@ -78,10 +105,19 @@ main(void)
   else if (x > 0) {
      sleep(1);
      fprintf(1, "%d: Parent.\n", getpid());
-     wait(0);
+     if (pinfo(-1, &pstat) < 0) fprintf(1, "Cannot get pinfo\n");
+     else fprintf(1, "pid=%d, ppid=%d, state=%s, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",
+         pstat.pid, pstat.ppid, pstat.state, pstat.command, pstat.ctime, pstat.stime, pstat.etime, pstat.size);
+     if (pinfo(x, &pstat) < 0) fprintf(1, "Cannot get pinfo\n");
+     else fprintf(1, "pid=%d, ppid=%d, state=%s, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n\n",
+         pstat.pid, pstat.ppid, pstat.state, pstat.command, pstat.ctime, pstat.stime, pstat.etime, pstat.size);
+     fprintf(1, "Return value of waitpid=%d\n", waitpid(x, 0));
   }
   else {
      fprintf(1, "%d: Child.\n", getpid());
+     if (pinfo(-1, &pstat) < 0) fprintf(1, "Cannot get pinfo\n");
+     else fprintf(1, "pid=%d, ppid=%d, state=%s, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n\n",
+         pstat.pid, pstat.ppid, pstat.state, pstat.command, pstat.ctime, pstat.stime, pstat.etime, pstat.size);
   }
 
   exit(0);
