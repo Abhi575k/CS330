@@ -846,5 +846,20 @@ forkf(int (*fun)(void))
 
 int pinfo(int pid,struct procstat* p)
 {
+  struct proc *cur = myproc();
+  acquire(&cur->lock);
+
+  if(pid==-1){
+    printf("%d\n",cur->pid);
+    printf("%d\n",p->pid);
+    // p->pid=cur->pid;
+    // p->ppid=cur->ppid;
+
+    // p->ctime=cur->creation_time;
+    // p->stime=cur->start_time;
+    // p->etime=cur->end_time-cur->start_time;
+    // p->size=cur->sz;
+  }
+  release(&cur->lock);
   return 0;
 }

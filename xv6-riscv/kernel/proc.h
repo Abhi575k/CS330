@@ -1,3 +1,5 @@
+struct procstat;
+
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;
