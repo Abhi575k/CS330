@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "procstat.h"
 
 uint64
 sys_exit(void)
@@ -118,7 +119,7 @@ sys_getpa(void)
   uint64 A;
   if(argaddr(0, &A) < 0)
     return -1;
-  printf("%d\n",A);
+  // printf("%d\n",A);
   return walkaddr(myproc()->pagetable, A) + (A & (PGSIZE - 1));
 }
 
@@ -141,7 +142,26 @@ sys_cps(void)
 }
 
 uint64
-sys_forkf(int (*fun)(void))
+sys_forkf(void)
 {
-  return forkf(&fun);
+  uint64 func;
+  if(argaddr(0, &func) < 0)
+    return -1;
+  int (*fun)()=(int(*)())func;
+  int x=forkf(fun);
+  return x;
+}
+
+uint64
+sys_pinfo(void)
+{
+  int pid;
+  uint64 addr;
+  struct procstat *p;
+  if(argint(0, &pid) < 0)
+    return -1;
+  if(argaddr(1, &addr) < 0)
+    return -1;
+  p=(struct procstat*)addr;
+  return pinfo(pid,p);
 }

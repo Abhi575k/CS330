@@ -1,3 +1,5 @@
+struct procstat;
+
 // Saved registers for kernel context switches.
 struct context {
   uint64 ra;
@@ -95,6 +97,10 @@ struct proc {
 
   // wait_lock must be held when using this:
   struct proc *parent;         // Parent process
+
+  int creation_time;
+  int start_time;
+  int end_time;
 
   // these are private to the process, so p->lock need not be held.
   uint64 kstack;               // Virtual address of kernel stack

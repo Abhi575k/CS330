@@ -83,6 +83,19 @@ argstr(int n, char *buf, int max)
   return fetchstr(addr, buf, max);
 }
 
+// int
+// argptr(int n, char **pp, int size)
+// {
+//   int i;
+//   struct proc* cur_proc=myproc();
+//   if(argint(n, &i) < 0)
+//     return -1;
+//   if(size < 0 || (uint)i >= cur_proc->sz || (uint)i+size > cur_proc->sz)
+//     return -1;
+//   *pp=(char*)i;
+//   return 0;
+// }
+
 extern uint64 sys_chdir(void);
 extern uint64 sys_close(void);
 extern uint64 sys_dup(void);
@@ -110,6 +123,7 @@ extern uint64 sys_getpa(void);
 extern uint64 sys_waitpid(void);
 extern uint64 sys_cps(void);
 extern uint64 sys_forkf(void);
+extern uint64 sys_pinfo(void);
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -138,7 +152,8 @@ static uint64 (*syscalls[])(void) = {
 [SYS_getpa]  sys_getpa,
 [SYS_waitpid]  sys_waitpid,
 [SYS_cps]  sys_cps,
-[SYS_forkf] sys_forkf
+[SYS_forkf] sys_forkf,
+[SYS_pinfo] sys_pinfo
 };
 
 void

@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "procstat.h"
 
 struct cpu cpus[NCPU];
 
@@ -140,7 +141,11 @@ found:
   memset(&p->context, 0, sizeof(p->context));
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
-
+  uint xticks;
+  acquire(&tickslock);
+  xticks = ticks;
+  release(&tickslock);
+  p->creation_time=xticks;
   return p;
 }
 
@@ -368,9 +373,13 @@ exit(int status)
   wakeup(p->parent);
   
   acquire(&p->lock);
-
   p->xstate = status;
   p->state = ZOMBIE;
+  uint xticks;
+  acquire(&tickslock);
+  xticks = ticks;
+  release(&tickslock);
+  p->end_time=xticks;
 
   release(&wait_lock);
 
@@ -520,8 +529,14 @@ forkret(void)
     first = 0;
     fsinit(ROOTDEV);
   }
-
+  // printf("AAAAAAAAAAAAAAA\n");
+  uint xticks;
+  acquire(&tickslock);
+  xticks = ticks;
+  release(&tickslock);
+  myproc()->start_time=xticks;
   usertrapret();
+
 }
 
 // Atomically release lock and sleep on chan.
@@ -754,18 +769,26 @@ cps(){
     //sti();
     for (np = proc ; np<&proc[NPROC];np++)
     {
-
+    uint xticks;
+    acquire(&tickslock);
+    xticks = ticks;
+    release(&tickslock);
     acquire(&np->lock);
+    //pid=1, ppid=-1, state=sleep, cmd=init, ctime=0, stime=1, etime=101, size=0x0000000000003000
       if(np->state == SLEEPING) {
-        printf("%s \t %d \t SLEEPING  \n", np->name,np->pid);
+        printf("pid=%d, ppid=  , state=sleep, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == RUNNING) {
-        printf("%s \t %d \t RUNNING  \n", np->name,np->pid);
+        printf("pid=%d, ppid=  , state=run, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == RUNNABLE) {
-        printf("%s \t %d \t RUNNABLE \n", np->name,np->pid);
+        printf("pid=%d, ppid=  , state=runnable, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+      }
+
+      else if(np->state == ZOMBIE) {
+        printf("pid=%d, ppid=  , state=zombie, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,np->end_time-np->start_time,np->sz);
       }
      
     release(&np->lock);
@@ -786,7 +809,6 @@ forkf(int (*fun)(void))
   if((np = allocproc()) == 0){
     return -1;
   }
-
   // Copy user memory from parent to child.
   if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
     freeproc(np);
@@ -816,11 +838,28 @@ forkf(int (*fun)(void))
   acquire(&wait_lock);
   np->parent = p;
   release(&wait_lock);
-
   acquire(&np->lock);
-  fun();
   np->state = RUNNABLE;
   release(&np->lock);
-
   return pid;
+}
+
+int pinfo(int pid,struct procstat* p)
+{
+  struct proc *cur = myproc();
+  acquire(&cur->lock);
+
+  if(pid==-1){
+    printf("%d\n",cur->pid);
+    printf("%d\n",p->pid);
+    // p->pid=cur->pid;
+    // p->ppid=cur->ppid;
+
+    // p->ctime=cur->creation_time;
+    // p->stime=cur->start_time;
+    // p->etime=cur->end_time-cur->start_time;
+    // p->size=cur->sz;
+  }
+  release(&cur->lock);
+  return 0;
 }
