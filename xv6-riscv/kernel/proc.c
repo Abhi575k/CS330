@@ -773,27 +773,41 @@ cps(){
     acquire(&tickslock);
     xticks = ticks;
     release(&tickslock);
+
+    acquire(&wait_lock);
     acquire(&np->lock);
+   int ppid = np->parent->pid;
+      release(&wait_lock);
+    // release(&wait_lock);
     //pid=1, ppid=-1, state=sleep, cmd=init, ctime=0, stime=1, etime=101, size=0x0000000000003000
       if(np->state == SLEEPING) {
-        printf("pid=%d, ppid=  , state=sleep, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d, ppid= %d , state=sleep, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == RUNNING) {
-        printf("pid=%d, ppid=  , state=run, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d, ppid= %d , state=run, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == RUNNABLE) {
-        printf("pid=%d, ppid=  , state=runnable, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d, ppid= %d , state=runnable, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == ZOMBIE) {
-        printf("pid=%d, ppid=  , state=zombie, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,np->end_time-np->start_time,np->sz);
+        printf("pid=%d, ppid= %d , state=zombie, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,ppid,np->name,np->creation_time,np->start_time,np->end_time-np->start_time,np->sz);
       }
      
     release(&np->lock);
-      
+  
+     
     }
+
+    // np = myproc();
+    // acquire(&wait_lock);
+    // printf("%d",np->parent->pid);
+    // release(&wait_lock);
+    // acquire(&np->lock);
+    // printf("%d",np->pid);
+    // release(&np->lock);
     return 26;
     
 }
@@ -822,6 +836,7 @@ forkf(int (*fun)(void))
 
   // Cause fork to return 0 in the child.
   np->trapframe->a0 = 0;
+  np->trapframe->epc =(uint64) fun;
 
   // increment reference counts on open file descriptors.
   for(i = 0; i < NOFILE; i++)
@@ -850,15 +865,12 @@ int pinfo(int pid,struct procstat* p)
   acquire(&cur->lock);
 
   if(pid==-1){
-    printf("%d\n",cur->pid);
-    printf("%d\n",p->pid);
-    // p->pid=cur->pid;
-    // p->ppid=cur->ppid;
+    p->pid=cur->pid;
 
-    // p->ctime=cur->creation_time;
-    // p->stime=cur->start_time;
-    // p->etime=cur->end_time-cur->start_time;
-    // p->size=cur->sz;
+    p->ctime=cur->creation_time;
+    p->stime=cur->start_time;
+    p->etime=cur->end_time-cur->start_time;
+    p->size=cur->sz;
   }
   release(&cur->lock);
   return 0;
