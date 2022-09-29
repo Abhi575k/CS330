@@ -7,6 +7,5 @@
 int main(){
     int tm=uptime();
     printf("System up for: %d seconds\n",tm/10);
-    // printf("RBW\n");
     exit(0);
 }

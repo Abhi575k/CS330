@@ -97,6 +97,8 @@ sys_uptime(void)
   return xticks;
 }
 
+// THESE ALL ARE ADDED
+
 uint64
 sys_getppid(void)
 {
@@ -119,7 +121,6 @@ sys_getpa(void)
   uint64 A;
   if(argaddr(0, &A) < 0)
     return -1;
-  // printf("%d\n",A);
   return walkaddr(myproc()->pagetable, A) + (A & (PGSIZE - 1));
 }
 
@@ -136,9 +137,9 @@ sys_waitpid(void)
 }
 
 uint64
-sys_cps(void)
+sys_ps(void)
 {
-  return cps();
+  return ps();
 }
 
 uint64
@@ -148,7 +149,7 @@ sys_forkf(void)
   if(argaddr(0, &func) < 0)
     return -1;
   int (*fun)()=(int(*)())func;
-  int x=forkf(fun);
+  int x=forkf(fun); // passing function address as argument
   return x;
 }
 

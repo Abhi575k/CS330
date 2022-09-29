@@ -83,18 +83,18 @@ argstr(int n, char *buf, int max)
   return fetchstr(addr, buf, max);
 }
 
-// int
-// argptr(int n, char **pp, int size)
-// {
-//   int i;
-//   struct proc* cur_proc=myproc();
-//   if(argint(n, &i) < 0)
-//     return -1;
-//   if(size < 0 || (uint)i >= cur_proc->sz || (uint)i+size > cur_proc->sz)
-//     return -1;
-//   *pp=(char*)i;
-//   return 0;
-// }
+int
+argptr(int n, uint64 *pp, int size)
+{
+  int i;
+  struct proc* cur_proc=myproc();
+  if(argint(n, &i) < 0)
+    return -1;
+  if(size < 0 || (uint)i >= cur_proc->sz || (uint)i+size > cur_proc->sz)
+    return -1;
+  *pp=(uint64)i;
+  return 0;
+}
 
 extern uint64 sys_chdir(void);
 extern uint64 sys_close(void);
@@ -117,13 +117,13 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
-extern uint64 sys_getppid(void);
-extern uint64 sys_yield(void);
-extern uint64 sys_getpa(void);
-extern uint64 sys_waitpid(void);
-extern uint64 sys_cps(void);
-extern uint64 sys_forkf(void);
-extern uint64 sys_pinfo(void);
+extern uint64 sys_getppid(void);  // This was added
+extern uint64 sys_yield(void);    // This was added 
+extern uint64 sys_getpa(void);    // This was added
+extern uint64 sys_waitpid(void);  // This was added
+extern uint64 sys_ps(void);       // This was added
+extern uint64 sys_forkf(void);    // This was added
+extern uint64 sys_pinfo(void);    // This was added
 
 static uint64 (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -147,13 +147,13 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_getppid]  sys_getppid,
-[SYS_yield]  sys_yield,
-[SYS_getpa]  sys_getpa,
-[SYS_waitpid]  sys_waitpid,
-[SYS_cps]  sys_cps,
-[SYS_forkf] sys_forkf,
-[SYS_pinfo] sys_pinfo
+[SYS_getppid]  sys_getppid,    // This was added
+[SYS_yield]  sys_yield,        // This was added
+[SYS_getpa]  sys_getpa,        // This was added
+[SYS_waitpid]  sys_waitpid,    // This was added
+[SYS_ps]  sys_ps,              // This was added
+[SYS_forkf] sys_forkf,         // This was added
+[SYS_pinfo] sys_pinfo          // This was added
 };
 
 void
