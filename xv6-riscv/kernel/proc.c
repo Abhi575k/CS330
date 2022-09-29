@@ -314,6 +314,7 @@ fork(void)
 
   acquire(&wait_lock);
   np->parent = p;
+   np->ppid = p->pid; 
   release(&wait_lock);
 
   acquire(&np->lock);
@@ -529,7 +530,7 @@ forkret(void)
     first = 0;
     fsinit(ROOTDEV);
   }
-  // printf("AAAAAAAAAAAAAAA\n");
+  if(myproc()->pid==1) myproc()->ppid=-1; // for init process
   uint xticks;
   acquire(&tickslock);
   xticks = ticks;
@@ -771,7 +772,7 @@ waitpid(int pid_inp,uint64 addr)        // This was added
 }
 
 int 
-ps(){                   // This was added
+ps(){                   // This was added. We have added ppid field in proc.h and have added corresponding ppid in fork process
    // struct proc *p;
     struct proc *np;
     
@@ -784,19 +785,19 @@ ps(){                   // This was added
 
     acquire(&np->lock);
       if(np->state == SLEEPING) {
-        printf("pid=%d, state=sleep, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d, ppid = %d, state=sleep, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == RUNNING) {
-        printf("pid=%d , state=run, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d, ppid = %d, state=run, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == RUNNABLE) {
-        printf("pid=%d, state=runnable, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d, ppid = %d, state=runnable, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == ZOMBIE) {
-        printf("pid=%d, state=zombie, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,np->end_time-np->start_time,np->sz);
+        printf("pid=%d, ppid = %d, state=zombie, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->ppid,np->name,np->creation_time,np->start_time,np->end_time-np->start_time,np->sz);
       }
      
     release(&np->lock);
@@ -854,19 +855,18 @@ forkf(int (*fun)(void))  // This was added
   return pid;
 }
 
-int pinfo(int pid,struct procstat* p)  // This was added
+int pinfo(int pid,struct procstat* p)  // This was added but not working
 {
   struct proc *cur = myproc();
   acquire(&cur->lock);
+  uint64 ppid = p->pid;
 
   if(pid==-1){
-    p->pid=cur->pid;
-
-    p->ctime=cur->creation_time;
-    p->stime=cur->start_time;
-    p->etime=cur->end_time-cur->start_time;
-    p->size=cur->sz;
+    copyout(cur->pagetable, ppid, (char*)&cur->pid,sizeof(int));
+  
+    printf("%d\n",ppid);
   }
   release(&cur->lock);
   return 0;
 }
+

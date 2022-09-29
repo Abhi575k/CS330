@@ -83,18 +83,18 @@ argstr(int n, char *buf, int max)
   return fetchstr(addr, buf, max);
 }
 
-// int
-// argptr(int n, char **pp, int size)
-// {
-//   int i;
-//   struct proc* cur_proc=myproc();
-//   if(argint(n, &i) < 0)
-//     return -1;
-//   if(size < 0 || (uint)i >= cur_proc->sz || (uint)i+size > cur_proc->sz)
-//     return -1;
-//   *pp=(char*)i;
-//   return 0;
-// }
+int
+argptr(int n, uint64 *pp, int size)
+{
+  int i;
+  struct proc* cur_proc=myproc();
+  if(argint(n, &i) < 0)
+    return -1;
+  if(size < 0 || (uint)i >= cur_proc->sz || (uint)i+size > cur_proc->sz)
+    return -1;
+  *pp=(uint64)i;
+  return 0;
+}
 
 extern uint64 sys_chdir(void);
 extern uint64 sys_close(void);
