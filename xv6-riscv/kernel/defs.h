@@ -105,10 +105,10 @@ void            yield(void);
 int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
-int             waitpid(int,uint64);
-int             cps(void);
-int             forkf(int(*)(void));
-int             pinfo(int,struct procstat*);
+int             waitpid(int,uint64);  // This was added
+int             ps(void);   // This was added
+int             forkf(int(*)(void));  // This was added
+int             pinfo(int,struct procstat*);   // This was added
 
 // swtch.S
 void            swtch(struct context*, struct context*);

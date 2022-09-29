@@ -97,10 +97,10 @@ struct proc {
 
   // wait_lock must be held when using this:
   struct proc *parent;         // Parent process
-
-  int creation_time;
-  int start_time;
-  int end_time;
+ 
+  int creation_time;          // This was added
+  int start_time;             // This was added 
+  int end_time;               // This was added
 
   // these are private to the process, so p->lock need not be held.
   uint64 kstack;               // Virtual address of kernel stack

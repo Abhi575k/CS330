@@ -40,6 +40,6 @@ entry("uptime");
 entry("yield");
 entry("getpa");
 entry("waitpid");
-entry("cps");
+entry("ps");
 entry("forkf");
 entry("pinfo");

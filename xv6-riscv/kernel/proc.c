@@ -556,6 +556,7 @@ sleep(void *chan, struct spinlock *lk)
   acquire(&p->lock);  //DOC: sleeplock1
   release(lk);
 
+
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
@@ -671,8 +672,15 @@ procdump(void)
   }
 }
 
+
+// This system call takes two arguments: an integer and a pointer. The
+// integer argument can be a pid or -1. The system call waits for the process with
+// the passed pid to complete provided the pid is of a child of the calling process.
+// If the first argument is -1, the system call behaves similarly to the wait system
+// call. The normal return value of this system call is the pid of the process that
+// it has waited on
 int
-waitpid(int pid_inp,uint64 addr)
+waitpid(int pid_inp,uint64 addr)        // This was added
 {
   if(pid_inp==-1){
     struct proc *np;
@@ -717,7 +725,7 @@ waitpid(int pid_inp,uint64 addr)
       // Wait for a child to exit.
       sleep(p, &wait_lock);  //DOC: wait-sleep
     }
-  }else{
+  }else{    // when first argument is pid of a process.
     struct proc *np;
     int havekids, pid;
     struct proc *p = myproc();
@@ -763,57 +771,44 @@ waitpid(int pid_inp,uint64 addr)
 }
 
 int 
-cps(){
+ps(){                   // This was added
    // struct proc *p;
     struct proc *np;
-    //sti();
-    for (np = proc ; np<&proc[NPROC];np++)
+    
+    for (np = proc ; np<&proc[NPROC];np++) // going through the proc table
     {
     uint xticks;
     acquire(&tickslock);
-    xticks = ticks;
+    xticks = ticks;         // using clock ticks for creation time, start time and execution times.
     release(&tickslock);
 
-    acquire(&wait_lock);
     acquire(&np->lock);
-   int ppid = np->parent->pid;
-      release(&wait_lock);
-    // release(&wait_lock);
-    //pid=1, ppid=-1, state=sleep, cmd=init, ctime=0, stime=1, etime=101, size=0x0000000000003000
       if(np->state == SLEEPING) {
-        printf("pid=%d, ppid= %d , state=sleep, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d, state=sleep, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == RUNNING) {
-        printf("pid=%d, ppid= %d , state=run, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d , state=run, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == RUNNABLE) {
-        printf("pid=%d, ppid= %d , state=runnable, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,ppid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
+        printf("pid=%d, state=runnable, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,xticks-np->start_time,np->sz);
       }
 
       else if(np->state == ZOMBIE) {
-        printf("pid=%d, ppid= %d , state=zombie, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,ppid,np->name,np->creation_time,np->start_time,np->end_time-np->start_time,np->sz);
+        printf("pid=%d, state=zombie, cmd=%s, ctime=%d, stime=%d, etime=%d, size=%p\n",np->pid,np->name,np->creation_time,np->start_time,np->end_time-np->start_time,np->sz);
       }
      
     release(&np->lock);
-  
+    freeproc(np);   // freeing up process in the for loop.
      
     }
-
-    // np = myproc();
-    // acquire(&wait_lock);
-    // printf("%d",np->parent->pid);
-    // release(&wait_lock);
-    // acquire(&np->lock);
-    // printf("%d",np->pid);
-    // release(&np->lock);
-    return 26;
+    return 0;  // as given in question, return value is always 0.
     
 }
 
 int
-forkf(int (*fun)(void))
+forkf(int (*fun)(void))  // This was added
 {
   int i, pid;
   struct proc *np;
@@ -836,7 +831,7 @@ forkf(int (*fun)(void))
 
   // Cause fork to return 0 in the child.
   np->trapframe->a0 = 0;
-  np->trapframe->epc =(uint64) fun;
+  np->trapframe->epc =(uint64) fun; // setting program counter to the address of the function  [Everything is same as in fork syscall except that we change program counter in child so as to point to function given]
 
   // increment reference counts on open file descriptors.
   for(i = 0; i < NOFILE; i++)
@@ -859,7 +854,7 @@ forkf(int (*fun)(void))
   return pid;
 }
 
-int pinfo(int pid,struct procstat* p)
+int pinfo(int pid,struct procstat* p)  // This was added
 {
   struct proc *cur = myproc();
   acquire(&cur->lock);
