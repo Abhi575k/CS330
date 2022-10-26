@@ -8,6 +8,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+extern uint sched_policy;
 
 // bio.c
 void            binit(void);
