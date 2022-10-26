@@ -12,3 +12,13 @@
 #define FSSIZE       2000  // size of file system in blocks
 #define MAXPATH      128   // maximum file path name
 #define TIMER_INTERVAL 100000   //
+#define SCHED_NPREEMPT_FCFS 0
+#define SCHED_NPREEMPT_SJF 1
+#define SCHED_PREEMPT_RR 2
+#define SCHED_PREEMPT_UNIX 3
+#define SCHED_PARAM_SJF_A_NUMER 1  // p
+#define SCHED_PARAM_SJF_A_DENOM 2  // q
+#define SCHED_PARAM_CPU_USAGE 200
+
+
+
