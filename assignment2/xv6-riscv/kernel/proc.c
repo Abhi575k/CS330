@@ -6,7 +6,8 @@
 #include "proc.h"
 #include "defs.h"
 #include "procstat.h"
-
+int sched_policy;
+  
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
@@ -559,9 +560,10 @@ scheduler(void)
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-
+    if(sched_policy == 1) sjf_scheduler();
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
+      if(sched_policy != SCHED_PREEMPT_RR) break;
       if(p->state == RUNNABLE) {
         // Switch to chosen process.  It is the process's job
         // to release its lock and then reacquire it
@@ -579,12 +581,54 @@ scheduler(void)
   }
 }
 
+
+
+
+
+void
+sjf_scheduler(void)
+{
+  struct proc *p;
+  struct cpu *c = mycpu();
+  
+  c->proc = 0;
+  for(;;){
+    // Avoid deadlock by ensuring that devices can interrupt.
+    intr_on();
+
+    for(p = proc; p < &proc[NPROC]; p++) {
+      acquire(&p->lock);
+      // if(sched_policy != SCHED_PREEMPT_RR) break;
+      if(p->state == RUNNABLE) {
+        // Switch to chosen process.  It is the process's job
+        // to release its lock and then reacquire it
+        // before jumping back to us.
+        
+        p->state = RUNNING;
+       
+
+        c->proc = p;
+        swtch(&c->context, &p->context);
+
+        int turn_around = p->endtime - p->stime;\
+        p->cpu_birst_lenght = turn_around - ((SCHED_PARAM_SJF_A_NUMER)*turn_around)/(SCHED_PARAM_SJF_A_DENOM) + ((SCHED_PARAM_SJF_A_NUMER)*p->cpu_birst_lenght)/(SCHED_PARAM_SJF_A_DENOM);
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+      }
+      release(&p->lock);
+    }
+  }
+}
+
+
+
 // Switch to scheduler.  Must hold only p->lock
-// and have changed proc->state. Saves and restores
-// intena because intena is a property of this
+// and have changedtena is a property of this
 // kernel thread, not this CPU. It should
 // be proc->intena and proc->noff, but that would
-// break in the few places where a lock is held but
+// break in the few  proc->state. Saves and restores
+// intena because inplaces where a lock is held but
 // there's no process.
 void
 sched(void)

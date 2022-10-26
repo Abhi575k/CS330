@@ -94,6 +94,8 @@ struct proc {
   int pid;                     // Process ID
   int priority;                // Process priority
   int is_forkp;             // Whether a process is created using forkp(1) or not (0)
+  int cpu_usage;            // for preempt unix
+  int cpu_birst_lenght;
 
   // wait_lock must be held when using this:
   struct proc *parent;         // Parent process
