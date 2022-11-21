@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "barrier.h": "c",
+        "sleeplock.h": "c",
+        "condvar.h": "c"
+    }
+}

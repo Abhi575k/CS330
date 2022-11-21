@@ -1,0 +1,9 @@
+exec arg1 arg2 arg3 time
+condprodconstest 1 1 1 1
+semprodconstest 1 1 1 1
+condprodconstest 5 1 1 2
+semprodconstest 5 1 1 2
+condprodconstest 10 2 2 4
+semprodconstest 10 2 2 5
+condprodconstest 20 4 2 13
+semprodconstest 20 4 2 15
